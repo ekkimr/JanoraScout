@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/ekkimr/Personal Project/JanoraScoutApp/.claude/hooks/block-dangerous-commands.sh'"
+            "command": "bash .claude/hooks/block-dangerous-commands.sh"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/ekkimr/Personal Project/JanoraScoutApp/.claude/hooks/run-linter.sh'"
+            "command": "bash .claude/hooks/run-linter.sh"
           }
         ]
       }
@@ -27,11 +27,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/ekkimr/Personal Project/JanoraScoutApp/.claude/hooks/notify-done.sh'"
+            "command": "bash .claude/hooks/notify-done.sh"
           },
           {
             "type": "command",
-            "command": "bash '/Users/ekkimr/Personal Project/JanoraScoutApp/.claude/hooks/check-docs-needed.sh'"
+            "command": "bash .claude/hooks/check-docs-needed.sh"
           }
         ]
       }

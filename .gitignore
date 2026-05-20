@@ -1,0 +1,25 @@
+# Reinstall with: npx skills add alchaincyf/huashu-design
+.agents/
+
+# Environment
+.env
+*.env.local
+
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# IDE
+.idea/
+*.swp
