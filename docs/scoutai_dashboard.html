@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScoutAI — Academy Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #040a06;
+  --surface:  #080f0a;
+  --card:     #0c1510;
+  --border:   #112018;
+  --border2:  #1a3025;
+  --green:    #00e676;
+  --green2:   #69f0ae;
+  --amber:    #ffab40;
+  --red:      #ff5252;
+  --blue:     #40c4ff;
+  --purple:   #ea80fc;
+  --text:     #c8d8cc;
+  --muted:    #4a6855;
+  --dim:      #1e3028;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── GRID LAYOUT ── */
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 56px 1fr;
+  min-height: 100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.logo-mark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: #fff;
+}
+.logo-mark span { color: var(--green); }
+.topbar-divider { width: 1px; height: 24px; background: var(--border); }
+.session-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+.session-tag strong { color: var(--green); }
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0d2018;
+  border: 1px solid #0d3520;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 1.4s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+.avatar {
+  width: 32px; height: 32px;
+  background: var(--dim);
+  border: 1px solid var(--border2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  overflow-y: auto;
+}
+.sidebar-section {
+  padding: 0 16px;
+  margin-bottom: 24px;
+}
+.sidebar-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+.player-list { display: flex; flex-direction: column; gap: 2px; }
+.player-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.player-item:hover { background: var(--dim); }
+.player-item.active {
+  background: #0a2018;
+  border-color: var(--border2);
+}
+.player-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--muted);
+  width: 24px;
+  text-align: center;
+  transition: color 0.15s;
+}
+.player-item.active .player-num { color: var(--green); }
+.player-info { flex: 1; min-width: 0; }
+.player-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-pos {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+.player-score {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ── MAIN ── */
+.main {
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── PLAYER HERO ── */
+.player-hero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.player-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, #00e67615 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-number {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--border2);
+  letter-spacing: -2px;
+  user-select: none;
+}
+.hero-info { flex: 1; }
+.hero-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: #fff;
+  line-height: 1;
+}
+.hero-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.hero-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.hero-tag.pos { background: #0d2018; color: var(--green); border: 1px solid #0d3520; }
+.hero-tag.age { background: var(--dim); color: var(--muted); }
+.hero-tag.session { background: var(--dim); color: var(--muted); }
+
+.hero-score-area {
+  text-align: center;
+  padding: 0 20px;
+  border-left: 1px solid var(--border);
+}
+.score-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 8px;
+}
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring-bg { stroke: var(--dim); fill: none; stroke-width: 5; }
+.score-ring-fill { fill: none; stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+.score-val {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+.score-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+.hero-trend {
+  padding: 0 20px;
+  border-left: 1px solid var(--border);
+}
+.trend-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.trend-sparkline { display: flex; align-items: flex-end; gap: 3px; height: 40px; }
+.spark-bar {
+  width: 10px;
+  border-radius: 2px 2px 0 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.spark-bar:hover { opacity: 0.7; }
+.trend-dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* ── METRIC CARDS ── */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.metric-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: border-color 0.2s;
+}
+.metric-card:hover { border-color: var(--border2); }
+.metric-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+}
+.metric-icon {
+  font-size: 18px;
+  margin-bottom: 8px;
+  display: block;
+}
+.metric-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.metric-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1;
+  color: #fff;
+}
+.metric-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.metric-delta {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.delta-up   { background: #0a2018; color: var(--green); }
+.delta-down { background: #1a0a0a; color: var(--red); }
+.delta-flat { background: var(--dim); color: var(--muted); }
+
+/* ── MIDDLE ROW ── */
+.mid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 280px;
+  gap: 14px;
+}
+
+/* ── PANEL BASE ── */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.panel-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.panel-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ── PITCH HEATMAP ── */
+.pitch-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #061009;
+  border: 1px solid var(--border);
+}
+.pitch-svg { width: 100%; height: 100%; }
+
+/* ── RADAR CHART ── */
+.radar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* ── EVENT TIMELINE ── */
+.timeline-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
+.event-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 11px;
+  transition: border-color 0.15s;
+  animation: slideIn 0.3s ease both;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.event-row:hover { border-color: var(--border2); }
+.event-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  width: 32px;
+  flex-shrink: 0;
+}
+.event-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.event-name { flex: 1; color: var(--text); font-weight: 400; }
+.event-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+/* ── BOTTOM ROW ── */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── BAR CHART ── */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-session {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  width: 50px;
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--dim);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-val {
+  font-family: 'Barlow Condensed', monospace;
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+  width: 30px;
+  text-align: right;
+}
+
+/* ── GK PANEL ── */
+.gk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.gk-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.gk-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: #fff;
+  line-height: 1;
+}
+.gk-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 3px;
+}
+.save-zones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 3px;
+  aspect-ratio: 2/1;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.save-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: default;
+  transition: background 0.2s;
+}
+
+/* ── TAB SWITCHER ── */
+.tabs { display: flex; gap: 2px; margin-bottom: 14px; }
+.tab {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--muted);
+  background: transparent;
+  transition: all 0.15s;
+}
+.tab.active { background: var(--green); color: #040a06; border-color: var(--green); }
+.tab:hover:not(.active) { color: var(--text); border-color: var(--border2); }
+
+/* ── SECTION LABELS ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.section-line { height: 1px; flex: 1; background: var(--border); }
+.section-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 3px;
+}
+
+/* ── COMPARE TABLE ── */
+.compare-table { width: 100%; border-collapse: collapse; }
+.compare-table th {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+.compare-table td {
+  padding: 7px 8px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: var(--surface); }
+.rank-1 { color: var(--green); font-weight: 600; }
+.rank-2 { color: var(--amber); }
+.rank-3 { color: var(--blue); }
+
+/* animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.4s ease both; }
+.fade-up:nth-child(1) { animation-delay: 0.05s; }
+.fade-up:nth-child(2) { animation-delay: 0.10s; }
+.fade-up:nth-child(3) { animation-delay: 0.15s; }
+.fade-up:nth-child(4) { animation-delay: 0.20s; }
+.fade-up:nth-child(5) { animation-delay: 0.25s; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ══════════ TOPBAR ══════════ -->
+  <header class="topbar">
+    <div class="logo-mark">SCOUT<span>AI</span></div>
+    <div class="topbar-divider"></div>
+    <div class="session-tag">SESSION <strong>#24</strong> &nbsp;·&nbsp; 14 MAY 2026 &nbsp;·&nbsp; MORNING TRAINING</div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="live-dot"></div>PROCESSING COMPLETE</div>
+      <div class="avatar">RC</div>
+    </div>
+  </header>
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">OUTFIELD</div>
+      <div class="player-list" id="player-list"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">GOALKEEPER</div>
+      <div class="player-list" id="gk-list"></div>
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="main" id="main-content"></main>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const players = [
+  { id:1,  num:7,  name:"Arif Kurniawan",    pos:"FWD", age:16, score:88, color:"#00e676",
+    passes:42, passAcc:81, shots:6, shotsOnTarget:4, sprints:18, sprintMax:8.2, dribbles:9, dribbleAcc:67, control:78,
+    tackles:3, intercepts:1, distance:6840, aerials:2, keyPasses:4, pressing:12,
+    history:[72,75,78,80,82,85,87,88], isGK:false,
+    events:[
+      {t:"03'", type:"PASS",    label:"Progressive pass to #10",  result:"SUCCESS"},
+      {t:"11'", type:"SHOT",    label:"Long range attempt",        result:"OFF TARGET"},
+      {t:"18'", type:"DRIBBLE", label:"Beat defender on right",    result:"SUCCESS"},
+      {t:"24'", type:"SPRINT",  label:"Counter-attack run 52m",    result:"8.2 m/s"},
+      {t:"31'", type:"SHOT",    label:"Header from cross",         result:"ON TARGET"},
+      {t:"38'", type:"CONTROL", label:"First touch under pressure", result:"SUCCESS"},
+      {t:"45'", type:"PASS",    label:"Key pass → shot attempt",   result:"SUCCESS"},
+      {t:"52'", type:"DRIBBLE", label:"1v1 in penalty area",       result:"FAILED"},
+      {t:"61'", type:"SPRINT",  label:"Pressing run, ball won",    result:"7.8 m/s"},
+      {t:"70'", type:"SHOT",    label:"Low drive bottom corner",   result:"ON TARGET"},
+    ]
+  },
+  { id:2,  num:10, name:"Dimas Prasetyo",    pos:"MID", age:15, score:82, color:"#40c4ff",
+    passes:58, passAcc:87, shots:3, shotsOnTarget:2, sprints:14, sprintMax:7.6, dribbles:6, dribbleAcc:83, control:85,
+    tackles:5, intercepts:4, distance:8120, aerials:1, keyPasses:7, pressing:19,
+    history:[65,68,71,74,77,79,81,82], isGK:false,
+    events:[
+      {t:"05'", type:"PASS",    label:"Key through-ball to #7",    result:"SUCCESS"},
+      {t:"12'", type:"PRESS",   label:"High press wins ball",       result:"SUCCESS"},
+      {t:"19'", type:"PASS",    label:"Progressive pass wide",      result:"SUCCESS"},
+      {t:"28'", type:"DRIBBLE", label:"Turns past midfielder",      result:"SUCCESS"},
+      {t:"35'", type:"SHOT",    label:"Edge of box attempt",        result:"ON TARGET"},
+      {t:"44'", type:"CONTROL", label:"Chest control under press",  result:"SUCCESS"},
+      {t:"53'", type:"PASS",    label:"Cross-field switch",         result:"SUCCESS"},
+      {t:"62'", type:"TACKLE",  label:"Defensive recovery tackle",  result:"SUCCESS"},
+    ]
+  },
+  { id:3,  num:4,  name:"Rizky Fadhilah",    pos:"DEF", age:17, score:74, color:"#ffab40",
+    passes:34, passAcc:91, shots:1, shotsOnTarget:0, sprints:10, sprintMax:7.1, dribbles:2, dribbleAcc:50, control:88,
+    tackles:8, intercepts:6, distance:7340, aerials:5, keyPasses:1, pressing:15,
+    history:[60,62,65,67,69,71,73,74], isGK:false,
+    events:[
+      {t:"08'", type:"TACKLE",  label:"Sliding tackle clears danger", result:"SUCCESS"},
+      {t:"15'", type:"AERIAL",  label:"Won header from corner",       result:"SUCCESS"},
+      {t:"22'", type:"PASS",    label:"Switch of play to #7",         result:"SUCCESS"},
+      {t:"33'", type:"INTERCEPT",label:"Reads pass, wins ball",       result:"SUCCESS"},
+      {t:"41'", type:"AERIAL",  label:"Defensive header clearance",   result:"SUCCESS"},
+      {t:"55'", type:"TACKLE",  label:"Last-ditch tackle",            result:"SUCCESS"},
+    ]
+  },
+  { id:4,  num:11, name:"Bagas Santoso",     pos:"FWD", age:15, score:71, color:"#ea80fc",
+    passes:28, passAcc:75, shots:4, shotsOnTarget:2, sprints:16, sprintMax:8.5, dribbles:7, dribbleAcc:57, control:72,
+    tackles:1, intercepts:0, distance:7200, aerials:1, keyPasses:2, pressing:8,
+    history:[55,58,61,63,65,67,69,71], isGK:false,
+    events:[
+      {t:"07'", type:"SPRINT",  label:"Breakaway run 60m",           result:"8.5 m/s"},
+      {t:"16'", type:"DRIBBLE", label:"Beat fullback wide",          result:"SUCCESS"},
+      {t:"25'", type:"SHOT",    label:"Near post attempt",           result:"OFF TARGET"},
+      {t:"39'", type:"DRIBBLE", label:"Nutmeg attempt",              result:"FAILED"},
+      {t:"48'", type:"SHOT",    label:"Volley on edge of box",       result:"ON TARGET"},
+    ]
+  },
+  { id:5,  num:8,  name:"Fauzan Hidayat",    pos:"MID", age:16, score:69, color:"#69f0ae",
+    passes:47, passAcc:83, shots:2, shotsOnTarget:1, sprints:13, sprintMax:7.3, dribbles:4, dribbleAcc:75, control:80,
+    tackles:6, intercepts:5, distance:8600, aerials:2, keyPasses:3, pressing:22,
+    history:[52,55,57,60,62,64,67,69], isGK:false,
+    events:[
+      {t:"09'", type:"PRESS",   label:"Box-to-box press wins ball",  result:"SUCCESS"},
+      {t:"20'", type:"PASS",    label:"Quick one-two combination",   result:"SUCCESS"},
+      {t:"30'", type:"TACKLE",  label:"Midfield recovery",           result:"SUCCESS"},
+      {t:"42'", type:"SHOT",    label:"Low drive, keeper saves",     result:"ON TARGET"},
+    ]
+  },
+];
+
+const goalkeepers = [
+  { id:6, num:1, name:"Gilang Wibowo", pos:"GK", age:16, score:80, color:"#ff9f43", isGK:true,
+    saves:5, saveRate:83, distribution:14, distAcc:71, positioning:76, aerials:3, reaction:312,
+    saveZones:[[2,1,0],[1,0,1]],
+    history:[65,68,70,72,74,76,78,80],
+    events:[
+      {t:"11'", type:"SAVE",   label:"Diving save — bottom left",    result:"SAVED"},
+      {t:"22'", type:"DIST",   label:"Long kick to #7 flank",        result:"SUCCESS"},
+      {t:"31'", type:"SAVE",   label:"Reflex stop — close range",    result:"SAVED"},
+      {t:"40'", type:"AERIAL", label:"Claimed corner cross",         result:"SUCCESS"},
+      {t:"55'", type:"SAVE",   label:"Penalty kick — guessed right", result:"SAVED"},
+      {t:"63'", type:"DIST",   label:"Quick throw to #10",           result:"SUCCESS"},
+      {t:"71'", type:"SAVE",   label:"Header on target blocked",     result:"SAVED"},
+    ]
+  },
+];
+
+const typeColor = {
+  PASS:"#40c4ff", SHOT:"#ff5252", SPRINT:"#ffab40", DRIBBLE:"#ea80fc",
+  CONTROL:"#69f0ae", TACKLE:"#00e676", INTERCEPT:"#00e676", AERIAL:"#ffd740",
+  PRESS:"#40c4ff", SAVE:"#ff9f43", DIST:"#40c4ff", INTERCEPT:"#69f0ae",
+};
+const typeSuccess = { SUCCESS:"#00e676", "ON TARGET":"#00e676", SAVED:"#00e676",
+                      FAILED:"#ff5252", "OFF TARGET":"#ff5252" };
+
+let selected = players[0];
+
+// ─────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────
+function buildSidebar() {
+  const pl = document.getElementById('player-list');
+  const gl = document.getElementById('gk-list');
+
+  pl.innerHTML = players.map(p => `
+    <div class="player-item ${selected.id===p.id?'active':''}" onclick="select(${p.id})">
+      <div class="player-num">${p.num}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name.split(' ')[0]}</div>
+        <div class="player-pos">${p.pos}</div>
+      </div>
+      <div class="player-score" style="color:${p.color}">${p.score}</div>
+    </div>
+  `).join('');
+
+  gl.innerHTML = goalkeepers.map(p => `
+    <div class="player-item ${selected.id===p.id?'active':''}" onclick="select(${p.id})">
+      <div class="player-num">${p.num}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name.split(' ')[0]}</div>
+        <div class="player-pos">${p.pos}</div>
+      </div>
+      <div class="player-score" style="color:${p.color}">${p.score}</div>
+    </div>
+  `).join('');
+}
+
+function select(id) {
+  const all = [...players, ...goalkeepers];
+  selected = all.find(p => p.id === id);
+  buildSidebar();
+  renderMain();
+}
+
+// ─────────────────────────────────────────────
+// MAIN RENDER
+// ─────────────────────────────────────────────
+function renderMain() {
+  const m = document.getElementById('main-content');
+  if (selected.isGK) {
+    m.innerHTML = buildGKDashboard();
+  } else {
+    m.innerHTML = buildPlayerDashboard();
+  }
+  // trigger bar animations
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.bar-fill[data-w]').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+    animateRing();
+    animateBars();
+  });
+}
+
+// ─────────────────────────────────────────────
+// OUTFIELD DASHBOARD
+// ─────────────────────────────────────────────
+function buildPlayerDashboard() {
+  const p = selected;
+  const sessions = ["S20","S21","S22","S23","S24"];
+  const passHistory = [38,41,44,39,p.passes];
+  const shotHistory = [3,5,4,6,p.shots];
+
+  return `
+  <!-- HERO -->
+  <div class="player-hero fade-up">
+    <div class="hero-number">${p.num}</div>
+    <div class="hero-info">
+      <div class="hero-name">${p.name.toUpperCase()}</div>
+      <div class="hero-meta">
+        <span class="hero-tag pos">${p.pos}</span>
+        <span class="hero-tag age">AGE ${p.age}</span>
+        <span class="hero-tag session">SESSION #24</span>
+        <span class="hero-tag session">DIST ${(p.distance/1000).toFixed(1)} KM</span>
+      </div>
+    </div>
+    <div class="hero-score-area">
+      <div class="score-ring">
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle class="score-ring-bg" cx="40" cy="40" r="34"/>
+          <circle class="score-ring-fill" id="ring-fill" cx="40" cy="40" r="34"
+            stroke="${p.color}"
+            stroke-dasharray="213.6"
+            stroke-dashoffset="${213.6 - (p.score/100)*213.6}"/>
+        </svg>
+        <div class="score-val" style="color:${p.color}">${p.score}</div>
+      </div>
+      <div class="score-label">PERF SCORE</div>
+    </div>
+    <div class="hero-trend">
+      <div class="trend-title">8-SESSION TREND</div>
+      <div class="trend-sparkline">
+        ${p.history.map((v,i) => `
+          <div class="spark-bar" style="height:${(v/100)*40}px;background:${i===7?p.color:p.color+'55'}"></div>
+        `).join('')}
+      </div>
+      <div class="trend-dates"><span>S17</span><span>S24</span></div>
+    </div>
+  </div>
+
+  <!-- METRICS ROW -->
+  <div class="metrics-row">
+    ${metricCard('⚡','PASSES',p.passes,`${p.passAcc}% accuracy`,'#40c4ff','+3')}
+    ${metricCard('🎯','SHOTS',p.shots,`${p.shotsOnTarget} on target`,'#ff5252','+2')}
+    ${metricCard('💨','SPRINTS',p.sprints,`${p.sprintMax} m/s max`,'#ffab40','0')}
+    ${metricCard('🕹','DRIBBLES',p.dribbles,`${p.dribbleAcc}% success`,'#ea80fc','+1')}
+    ${metricCard('🎮','CONTROL',p.control+'%','First touch rate','#69f0ae','+5%')}
+  </div>
+
+  <!-- MIDDLE ROW -->
+  <div class="mid-row">
+    <!-- HEATMAP -->
+    <div class="panel">
+      <div class="panel-title">POSITION HEATMAP</div>
+      <div class="panel-sub">Touch density across session zones</div>
+      <div class="pitch-wrap">${buildPitchSVG(p)}</div>
+    </div>
+
+    <!-- RADAR -->
+    <div class="panel">
+      <div class="panel-title">SKILL RADAR</div>
+      <div class="panel-sub">Session vs. personal best</div>
+      <div class="radar-wrap">${buildRadar(p)}</div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="panel">
+      <div class="panel-title">EVENT LOG</div>
+      <div class="panel-sub">${p.events.length} events detected</div>
+      <div class="timeline-list">
+        ${p.events.map(e => `
+          <div class="event-row">
+            <div class="event-time">${e.t}</div>
+            <div class="event-dot" style="background:${typeColor[e.type]||'#666'}"></div>
+            <div class="event-name">${e.label}</div>
+            <div class="event-badge" style="background:${(typeSuccess[e.result]||'#444')}22;color:${typeSuccess[e.result]||'#888'}">${e.result}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bottom-row">
+    <!-- SESSION HISTORY CHART -->
+    <div class="panel">
+      <div class="panel-title">PASSING — SESSION HISTORY</div>
+      <div class="panel-sub">Last 5 sessions</div>
+      <div class="bar-chart">
+        ${sessions.map((s,i) => {
+          const v = passHistory[i];
+          const pct = Math.round((v / 65) * 100);
+          const isLast = i === sessions.length - 1;
+          return `
+          <div class="bar-row">
+            <div class="bar-session">${s}</div>
+            <div class="bar-track">
+              <div class="bar-fill" data-w="${pct}" style="width:0;background:${isLast?'#40c4ff':'#40c4ff44'}"></div>
+            </div>
+            <div class="bar-val" style="color:${isLast?'#40c4ff':'#fff'}">${v}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:16px">
+        <div class="panel-sub" style="margin-bottom:6px">SHOTS — SESSION HISTORY</div>
+        <div class="bar-chart">
+          ${sessions.map((s,i) => {
+            const v = shotHistory[i];
+            const pct = Math.round((v/8)*100);
+            const isLast = i === sessions.length-1;
+            return `
+            <div class="bar-row">
+              <div class="bar-session">${s}</div>
+              <div class="bar-track">
+                <div class="bar-fill" data-w="${pct}" style="width:0;background:${isLast?'#ff5252':'#ff525244'}"></div>
+              </div>
+              <div class="bar-val" style="color:${isLast?'#ff5252':'#fff'}">${v}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- SQUAD COMPARISON -->
+    <div class="panel">
+      <div class="panel-title">SQUAD COMPARISON</div>
+      <div class="panel-sub">This session — all outfield players</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>#</th><th>PLAYER</th><th>PASSES</th><th>SHOTS</th><th>SPRINTS</th><th>SCORE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[...players].sort((a,b)=>b.score-a.score).map((p2, idx) => `
+          <tr style="${p2.id===selected.id?'background:#0a2018':''}" onclick="select(${p2.id})" style="cursor:pointer">
+            <td class="${idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':''}">${idx+1}</td>
+            <td style="color:${p2.id===selected.id?p.color:''}">${p2.name.split(' ')[0]}</td>
+            <td>${p2.passes}</td>
+            <td>${p2.shots}</td>
+            <td>${p2.sprints}</td>
+            <td style="color:${p2.color};font-weight:600">${p2.score}</td>
+          </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// GOALKEEPER DASHBOARD
+// ─────────────────────────────────────────────
+function buildGKDashboard() {
+  const p = selected;
+  const sessions = ["S20","S21","S22","S23","S24"];
+  const saveHistory = [3,4,6,5,p.saves];
+
+  const zoneLabels = [["TL","TC","TR"],["BL","BC","BR"]];
+  const zoneColors = ["#ff5252","#ffab40","#ff5252","#ff5252","#69f0ae","#ffab40"];
+
+  return `
+  <!-- HERO -->
+  <div class="player-hero fade-up">
+    <div class="hero-number">${p.num}</div>
+    <div class="hero-info">
+      <div class="hero-name">${p.name.toUpperCase()}</div>
+      <div class="hero-meta">
+        <span class="hero-tag pos" style="background:#1f1200;color:#ff9f43;border-color:#3a2000">GK</span>
+        <span class="hero-tag age">AGE ${p.age}</span>
+        <span class="hero-tag session">SESSION #24</span>
+        <span class="hero-tag session">REACTION ${p.reaction}ms</span>
+      </div>
+    </div>
+    <div class="hero-score-area">
+      <div class="score-ring">
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle class="score-ring-bg" cx="40" cy="40" r="34"/>
+          <circle class="score-ring-fill" id="ring-fill" cx="40" cy="40" r="34"
+            stroke="${p.color}"
+            stroke-dasharray="213.6"
+            stroke-dashoffset="${213.6 - (p.score/100)*213.6}"/>
+        </svg>
+        <div class="score-val" style="color:${p.color}">${p.score}</div>
+      </div>
+      <div class="score-label">PERF SCORE</div>
+    </div>
+    <div class="hero-trend">
+      <div class="trend-title">8-SESSION TREND</div>
+      <div class="trend-sparkline">
+        ${p.history.map((v,i) => `
+          <div class="spark-bar" style="height:${(v/100)*40}px;background:${i===7?p.color:p.color+'55'}"></div>
+        `).join('')}
+      </div>
+      <div class="trend-dates"><span>S17</span><span>S24</span></div>
+    </div>
+  </div>
+
+  <!-- GK METRICS -->
+  <div class="metrics-row">
+    ${metricCard('🧤','SAVES',p.saves,`${p.saveRate}% save rate`,'#ff9f43','+1')}
+    ${metricCard('📐','POSITIONING',p.positioning+'%','Angle coverage','#40c4ff','+4%')}
+    ${metricCard('🦵','DISTRIBUTION',p.distribution,`${p.distAcc}% accuracy`,'#69f0ae','-2')}
+    ${metricCard('✈️','AERIAL CLAIMS',p.aerials,'Claims & punches','#ea80fc','+1')}
+    ${metricCard('⚡','REACTION',p.reaction+'ms','Avg per shot faced','#ffd740','-18ms')}
+  </div>
+
+  <!-- MIDDLE ROW -->
+  <div class="mid-row">
+    <!-- PITCH -->
+    <div class="panel">
+      <div class="panel-title">POSITIONING HEATMAP</div>
+      <div class="panel-sub">GK position zones during session</div>
+      <div class="pitch-wrap">${buildGKPitchSVG(p)}</div>
+    </div>
+
+    <!-- SAVE ZONES -->
+    <div class="panel">
+      <div class="panel-title">SAVE ZONE MAP</div>
+      <div class="panel-sub">Shot placement — saves this session</div>
+      <div style="margin-bottom:12px">
+        <div class="save-zones" style="aspect-ratio:2/1.2">
+          ${p.saveZones.flat().map((v,i) => {
+            const hot = v >= 2;
+            const mid = v === 1;
+            const bg = hot ? '#1a0800' : mid ? '#0d1a08' : '#060f08';
+            const col = hot ? '#ff9f43' : mid ? '#69f0ae' : '#1e3028';
+            return `<div class="save-zone" style="background:${bg};color:${col}">
+              ${v > 0 ? `<span>${v}</span>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:3px">
+          ${zoneLabels.flat().map(l => `<div style="text-align:center;font-family:'Share Tech Mono';font-size:8px;color:var(--muted)">${l}</div>`).join('')}
+        </div>
+      </div>
+      <div class="gk-grid">
+        <div class="gk-stat">
+          <div class="gk-val" style="color:#ff9f43">${p.saves}</div>
+          <div class="gk-lbl">SAVES</div>
+        </div>
+        <div class="gk-stat">
+          <div class="gk-val" style="color:#69f0ae">${p.saveRate}%</div>
+          <div class="gk-lbl">SAVE RATE</div>
+        </div>
+        <div class="gk-stat">
+          <div class="gk-val" style="color:#40c4ff">${p.aerials}</div>
+          <div class="gk-lbl">AERIALS</div>
+        </div>
+        <div class="gk-stat">
+          <div class="gk-val" style="color:#ea80fc">${p.reaction}ms</div>
+          <div class="gk-lbl">REACTION</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="panel">
+      <div class="panel-title">GK EVENT LOG</div>
+      <div class="panel-sub">${p.events.length} goalkeeper actions</div>
+      <div class="timeline-list">
+        ${p.events.map(e => `
+          <div class="event-row">
+            <div class="event-time">${e.t}</div>
+            <div class="event-dot" style="background:${typeColor[e.type]||'#ff9f43'}"></div>
+            <div class="event-name">${e.label}</div>
+            <div class="event-badge" style="background:${(typeSuccess[e.result]||'#444')}22;color:${typeSuccess[e.result]||'#888'}">${e.result}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottom-row">
+    <div class="panel">
+      <div class="panel-title">SAVES — SESSION HISTORY</div>
+      <div class="panel-sub">Last 5 sessions</div>
+      <div class="bar-chart">
+        ${sessions.map((s,i) => {
+          const v = saveHistory[i];
+          const pct = Math.round((v/8)*100);
+          const isLast = i===sessions.length-1;
+          return `<div class="bar-row">
+            <div class="bar-session">${s}</div>
+            <div class="bar-track"><div class="bar-fill" data-w="${pct}" style="width:0;background:${isLast?'#ff9f43':'#ff9f4344'}"></div></div>
+            <div class="bar-val" style="color:${isLast?'#ff9f43':'#fff'}">${v}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">DISTRIBUTION ANALYSIS</div>
+      <div class="panel-sub">Target zones this session</div>
+      <div class="bar-chart" style="margin-top:8px">
+        ${[["Left Channel",6],["Central",4],["Right Channel",4]].map(([z,v]) => `
+          <div class="bar-row">
+            <div class="bar-session" style="width:90px">${z}</div>
+            <div class="bar-track"><div class="bar-fill" data-w="${Math.round(v/14*100)}" style="width:0;background:#69f0ae"></div></div>
+            <div class="bar-val" style="color:#69f0ae">${v}</div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:16px">
+        <div class="panel-sub" style="margin-bottom:8px">TYPE BREAKDOWN</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          ${[["THROW",5,"#40c4ff"],["KICK",6,"#69f0ae"],["GOAL KICK",3,"#ea80fc"]].map(([l,v,c])=>`
+          <div class="gk-stat">
+            <div class="gk-val" style="color:${c}">${v}</div>
+            <div class="gk-lbl">${l}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function metricCard(icon, label, value, sub, color, delta) {
+  const up = delta.startsWith('+');
+  const zero = delta === '0';
+  const cls = zero ? 'delta-flat' : up ? 'delta-up' : 'delta-down';
+  return `
+  <div class="metric-card fade-up" style="border-bottom:2px solid ${color}22">
+    <div class="metric-delta ${cls}">${delta}</div>
+    <span class="metric-icon">${icon}</span>
+    <div class="metric-label">${label}</div>
+    <div class="metric-value" style="color:${color}">${value}</div>
+    <div class="metric-sub">${sub}</div>
+  </div>`;
+}
+
+function buildPitchSVG(p) {
+  const pos = p.pos;
+  // heatmap blobs based on position
+  const blobs = pos==='FWD' ? [
+    {cx:75,cy:50,r:18,o:0.7},{cx:80,cy:35,r:12,o:0.5},{cx:70,cy:65,r:10,o:0.4},{cx:60,cy:45,r:8,o:0.3}
+  ] : pos==='MID' ? [
+    {cx:55,cy:50,r:20,o:0.7},{cx:65,cy:40,r:12,o:0.5},{cx:45,cy:55,r:14,o:0.4},{cx:60,cy:60,r:8,o:0.3}
+  ] : [
+    {cx:25,cy:50,r:18,o:0.7},{cx:30,cy:35,r:12,o:0.5},{cx:20,cy:65,r:10,o:0.4},{cx:35,cy:45,r:8,o:0.3}
+  ];
+  return pitchBase(blobs, p.color);
+}
+
+function buildGKPitchSVG(p) {
+  const blobs = [
+    {cx:10,cy:50,r:14,o:0.8},{cx:15,cy:40,r:8,o:0.5},{cx:15,cy:60,r:8,o:0.4},{cx:20,cy:50,r:6,o:0.3}
+  ];
+  return pitchBase(blobs, p.color);
+}
+
+function pitchBase(blobs, color) {
+  const hex = color.replace('#','');
+  return `
+  <svg class="pitch-svg" viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      ${blobs.map((b,i)=>`
+      <radialGradient id="blob${i}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${color}" stop-opacity="${b.o}"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </radialGradient>`).join('')}
+    </defs>
+    <!-- pitch markings -->
+    <rect x="1" y="1" width="98" height="60" fill="none" stroke="#1a3025" stroke-width="0.5"/>
+    <line x1="50" y1="1" x2="50" y2="61" stroke="#1a3025" stroke-width="0.4"/>
+    <circle cx="50" cy="31" r="9.15" fill="none" stroke="#1a3025" stroke-width="0.4"/>
+    <circle cx="50" cy="31" r="0.5" fill="#1a3025"/>
+    <!-- left penalty area -->
+    <rect x="1" y="16.5" width="16.5" height="29" fill="none" stroke="#1a3025" stroke-width="0.4"/>
+    <rect x="1" y="24.85" width="5.5" height="12.3" fill="none" stroke="#1a3025" stroke-width="0.3"/>
+    <!-- right penalty area -->
+    <rect x="82.5" y="16.5" width="16.5" height="29" fill="none" stroke="#1a3025" stroke-width="0.4"/>
+    <rect x="93.5" y="24.85" width="5.5" height="12.3" fill="none" stroke="#1a3025" stroke-width="0.3"/>
+    <!-- heatmap blobs -->
+    ${blobs.map((b,i)=>`
+    <ellipse cx="${b.cx}" cy="${b.cy}" rx="${b.r}" ry="${b.r*0.7}" fill="url(#blob${i})"/>`).join('')}
+  </svg>`;
+}
+
+function buildRadar(p) {
+  const labels = ['PASSING','SHOOTING','SPRINTING','DRIBBLING','CONTROL','DEFENDING'];
+  const vals = [p.passAcc, Math.round(p.shotsOnTarget/p.shots*100)||0, Math.round(p.sprintMax/10*100), p.dribbleAcc, p.control, Math.round((p.tackles+p.intercepts)/10*100)];
+  const best = [88, 70, 90, 80, 90, 85];
+  const cx=100, cy=100, r=75;
+  const n=labels.length;
+  function pt(val, idx, radius) {
+    const angle = (Math.PI*2/n)*idx - Math.PI/2;
+    const d = (val/100)*radius;
+    return [cx+Math.cos(angle)*d, cy+Math.sin(angle)*d];
+  }
+  const grid = [25,50,75,100].map(pct => {
+    const pts = labels.map((_,i)=>pt(pct,i,r).join(',')).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="var(--border)" stroke-width="${pct===100?0.8:0.4}"/>`;
+  }).join('');
+  const axes = labels.map((_,i)=>{
+    const [x,y]=pt(100,i,r);
+    return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
+  }).join('');
+  const bestPts = labels.map((_,i)=>pt(best[i],i,r).join(',')).join(' ');
+  const curPts  = labels.map((_,i)=>pt(vals[i],i,r).join(',')).join(' ');
+  const lbs = labels.map((l,i)=>{
+    const [x,y]=pt(115,i,r);
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-family="Share Tech Mono" font-size="6" fill="var(--muted)">${l}</text>`;
+  }).join('');
+  return `
+  <svg viewBox="0 0 200 200" width="200" height="200">
+    ${grid}${axes}
+    <polygon points="${bestPts}" fill="${selected.color}15" stroke="${selected.color}40" stroke-width="1"/>
+    <polygon points="${curPts}"  fill="${selected.color}30" stroke="${selected.color}" stroke-width="1.5"/>
+    ${labels.map((_,i)=>{
+      const [x,y]=pt(vals[i],i,r);
+      return `<circle cx="${x}" cy="${y}" r="2.5" fill="${selected.color}"/>`;
+    }).join('')}
+    ${lbs}
+    <!-- legend -->
+    <rect x="10" y="185" width="8" height="2" fill="${selected.color}40" stroke="${selected.color}40"/>
+    <text x="22" y="188" font-family="Share Tech Mono" font-size="6" fill="var(--muted)">BEST</text>
+    <rect x="60" y="185" width="8" height="2" fill="${selected.color}" stroke="${selected.color}"/>
+    <text x="72" y="188" font-family="Share Tech Mono" font-size="6" fill="var(--muted)">SESSION</text>
+  </svg>`;
+}
+
+function animateBars() {
+  document.querySelectorAll('.bar-fill[data-w]').forEach(el => {
+    const w = el.dataset.w;
+    setTimeout(() => { el.style.width = w + '%'; }, 100);
+  });
+}
+
+function animateRing() {
+  // ring already set via SVG attribute
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+buildSidebar();
+renderMain();
+</script>
+</body>
+</html>
+  

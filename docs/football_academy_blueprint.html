@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScoutAI — Football Academy Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  body {
+    min-height: 100vh;
+    background: #07090d;
+    font-family: 'DM Mono', monospace;
+    color: #d0d4dc;
+  }
+
+  /* ── HEADER ── */
+  #header {
+    background: #0b0e14;
+    border-bottom: 1px solid #13181f;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 1px; }
+  .logo span { color: #00ff87; }
+  .logo-sub { font-size: 9px; color: #444; letter-spacing: 3px; margin-top: 2px; }
+  .nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav-btn {
+    background: transparent; color: #444;
+    border: 1px solid #1a1f28;
+    padding: 6px 13px; font-size: 9px; letter-spacing: 2px;
+    cursor: pointer; border-radius: 3px;
+    font-family: 'DM Mono', monospace; font-weight: 300;
+    transition: all 0.15s;
+  }
+  .nav-btn.active {
+    background: #00ff87; color: #07090d;
+    border-color: #00ff87; font-weight: 500;
+  }
+  .nav-btn:hover:not(.active) { color: #999; border-color: #2a3040; }
+
+  /* ── LAYOUT ── */
+  #content { padding: 32px 28px; max-width: 1100px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── TYPOGRAPHY ── */
+  .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .page-sub { font-size: 11px; color: #555; margin-bottom: 20px; }
+  .label { font-size: 9px; letter-spacing: 3px; color: #444; margin-bottom: 10px; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-btn {
+    background: transparent; border: 1px solid #1a1f28;
+    color: #555; padding: 4px 12px; font-size: 9px; letter-spacing: 2px;
+    border-radius: 2px; cursor: pointer; font-family: 'DM Mono', monospace;
+    transition: all 0.15s;
+  }
+  .filter-btn.active-all   { background: #fff;     color: #07090d; border-color: #fff; }
+  .filter-btn.active-core  { background: #00ff87;  color: #07090d; border-color: #00ff87; }
+  .filter-btn.active-enh   { background: #ffd93d;  color: #07090d; border-color: #ffd93d; }
+  .filter-btn.active-fut   { background: #c77dff;  color: #07090d; border-color: #c77dff; }
+  .filter-btn.active-gk    { background: #ff9f43;  color: #07090d; border-color: #ff9f43; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 700px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: #0b0e14; border: 1px solid #13181f;
+    border-radius: 4px; padding: 16px 18px;
+    cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+  }
+  .card:hover { transform: translateY(-1px); border-color: #2a3040; }
+  .card.open { background: #0f1520; }
+  .card-id { font-size: 9px; color: #444; letter-spacing: 2px; margin-bottom: 6px; }
+  .card-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .badge {
+    font-size: 8px; padding: 2px 7px; border-radius: 2px;
+    letter-spacing: 1px; border: 1px solid;
+  }
+  .badge-ai    { background: #0d1f0f; color: #00ff87; border-color: #0d3015; }
+  .badge-gk    { background: #1f1200; color: #ff9f43; border-color: #3a2000; }
+  .badge-core  { color: #00ff87; border-color: #00ff8733; background: transparent; }
+  .badge-enh   { color: #ffd93d; border-color: #ffd93d33; background: transparent; }
+  .badge-fut   { color: #c77dff; border-color: #c77dff33; background: transparent; }
+  .card-name { font-size: 13px; color: #e0e4ed; font-weight: 500; margin: 8px 0 5px; }
+  .card-desc { font-size: 11px; color: #555; line-height: 1.6; }
+
+  /* card expand */
+  .card-detail { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid #13181f; }
+  .card-detail.open { display: block; }
+  .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .io-label { font-size: 9px; color: #555; letter-spacing: 2px; margin-bottom: 6px; }
+  .io-item-in  { font-size: 10px; color: #60efff; margin-bottom: 3px; }
+  .io-item-out { font-size: 10px; color: #00ff87; margin-bottom: 3px; }
+  .model-pill {
+    padding: 8px 12px; background: #0d1f0f;
+    border: 1px solid #0d3015; border-radius: 3px; margin-top: 6px;
+    font-size: 11px; color: #00ff87;
+  }
+  .model-pill span { font-size: 9px; color: #555; letter-spacing: 2px; margin-right: 8px; }
+  .users-line { font-size: 9px; color: #444; letter-spacing: 1px; margin-top: 8px; }
+
+  /* ── METRICS TABLE ── */
+  .metric-group { margin-bottom: 32px; }
+  .group-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .group-line { height: 1px; }
+  .group-title { font-size: 10px; letter-spacing: 3px; white-space: nowrap; }
+  .group-line-right { height: 1px; flex: 1; }
+  .metric-card {
+    background: #0b0e14; border: 1px solid #13181f;
+    border-radius: 4px; padding: 12px 14px;
+    border-left-width: 3px; border-left-style: solid;
+  }
+  .metric-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .metric-name { font-size: 12px; color: #e0e4ed; font-weight: 500; }
+  .diff-badge { font-size: 8px; padding: 2px 6px; border-radius: 2px; letter-spacing: 1px; border: 1px solid; }
+  .metric-capture { font-size: 9px; color: #444; letter-spacing: 1px; margin-bottom: 4px; }
+  .metric-detail { font-size: 10px; color: #555; line-height: 1.6; }
+
+  /* ── PREREQUISITES ── */
+  .prereq-group { margin-bottom: 28px; }
+  .prereq-header { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: 3px; margin-bottom: 12px; }
+  .prereq-line { height: 1px; width: 24px; }
+  .prereq-card {
+    background: #0b0e14; border: 1px solid #13181f;
+    border-radius: 4px; padding: 14px 16px;
+    border-left-width: 3px; border-left-style: solid;
+  }
+  .prereq-name { font-size: 12px; color: #e0e4ed; font-weight: 500; margin-bottom: 6px; }
+  .prereq-detail { font-size: 11px; color: #555; line-height: 1.7; }
+
+  /* ── AI STEPS ── */
+  .steps-flow {
+    display: flex; align-items: center;
+    overflow-x: auto; padding-bottom: 8px; margin-bottom: 24px;
+    gap: 0;
+  }
+  .step-btn {
+    padding: 8px 14px; background: #0b0e14;
+    border: 1px solid #13181f; border-radius: 3px;
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; font-family: 'DM Mono', monospace;
+  }
+  .step-btn:hover { opacity: 0.8; }
+  .step-btn.active { }
+  .step-btn.dimmed { opacity: 0.35; }
+  .step-num { font-size: 8px; letter-spacing: 2px; margin-bottom: 2px; }
+  .step-name { font-size: 10px; font-weight: 500; }
+  .step-arrow { font-size: 12px; color: #1a1f28; padding: 0 4px; }
+
+  .step-detail {
+    padding: 24px; background: #0b0e14;
+    border-radius: 4px; border-left-width: 4px; border-left-style: solid;
+    margin-bottom: 24px;
+  }
+  .step-detail-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .step-analogy { font-size: 12px; color: #666; font-style: italic; margin-bottom: 20px; }
+  .step-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .step-section-label { font-size: 9px; color: #444; letter-spacing: 2px; margin-bottom: 8px; }
+  .step-text { font-size: 12px; color: #bbb; line-height: 1.7; }
+  .tool-pill {
+    display: inline-block; padding: 10px 14px;
+    background: #07090d; border: 1px solid #13181f; border-radius: 3px;
+  }
+  .tool-pill span { font-size: 9px; color: #444; letter-spacing: 2px; margin-right: 8px; }
+  .tool-pill em { font-style: normal; font-size: 11px; }
+  .rules-section { margin-top: 16px; }
+  .rule-item {
+    font-size: 11px; color: #666; padding: 6px 12px;
+    background: #07090d; border: 1px solid #13181f;
+    border-radius: 3px; margin-bottom: 4px;
+  }
+
+  .step-placeholder {
+    padding: 40px 24px; background: #0b0e14;
+    border: 1px dashed #13181f; border-radius: 4px;
+    text-align: center; color: #2a3040; margin-bottom: 24px;
+  }
+  .step-placeholder .emoji { font-size: 32px; margin-bottom: 8px; }
+
+  .steps-table { border: 1px solid #13181f; border-radius: 4px; overflow: hidden; }
+  .steps-table-row {
+    display: grid; grid-template-columns: 60px 180px 1fr 150px;
+    border-bottom: 1px solid #0f1218;
+  }
+  .steps-table-row:last-child { border-bottom: none; }
+  .steps-table-cell { padding: 10px 14px; font-size: 10px; }
+  .steps-table-cell + .steps-table-cell { border-left: 1px solid #0f1218; }
+  @media (max-width: 700px) {
+    .steps-table-row { grid-template-columns: 40px 1fr; }
+    .steps-table-cell:nth-child(3),
+    .steps-table-cell:nth-child(4) { display: none; }
+  }
+
+  /* ── ROADMAP ── */
+  .phase-card {
+    background: #0b0e14; border: 1px solid #13181f;
+    border-radius: 4px; padding: 20px;
+    border-top-width: 3px; border-top-style: solid;
+  }
+  .phase-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .phase-label { font-size: 9px; letter-spacing: 3px; margin-bottom: 4px; }
+  .phase-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
+  .phase-dur { font-size: 9px; color: #444; padding: 4px 10px; border: 1px solid #13181f; border-radius: 2px; }
+  .deliverable {
+    font-size: 11px; color: #666; padding: 5px 0;
+    border-bottom: 1px solid #0f1218; display: flex; gap: 8px;
+  }
+  .deliverable:last-child { border-bottom: none; }
+  .milestone-box { padding: 10px 12px; border-radius: 3px; margin-top: 14px; border: 1px solid; }
+  .milestone-label { font-size: 9px; color: #444; letter-spacing: 2px; margin-bottom: 4px; }
+  .milestone-text { font-size: 11px; }
+
+  .timeline-bar { margin-top: 24px; padding: 20px; background: #0b0e14; border: 1px solid #13181f; border-radius: 4px; }
+  .timeline-track { display: flex; gap: 0; margin: 12px 0 8px; }
+  .timeline-seg { flex: 1; text-align: center; }
+  .timeline-seg-bar { height: 8px; }
+  .timeline-seg-phase { font-size: 9px; margin-top: 6px; }
+  .timeline-seg-dur { font-size: 9px; color: #444; }
+  .timeline-note { font-size: 11px; color: #555; margin-top: 10px; }
+
+  /* ── LEGEND ── */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #555; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── FOOTER ── */
+  #footer {
+    text-align: center; padding: 24px;
+    font-size: 10px; color: #222; letter-spacing: 2px;
+    border-top: 1px solid #0f1218; margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <div class="logo">⚽ SCOUT<span>AI</span></div>
+    <div class="logo-sub">FOOTBALL ACADEMY — PRODUCT BLUEPRINT</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showSection('features', this)">FEATURES</button>
+    <button class="nav-btn" onclick="showSection('metrics', this)">METRICS</button>
+    <button class="nav-btn" onclick="showSection('prereqs', this)">PREREQUISITES</button>
+    <button class="nav-btn" onclick="showSection('ai', this)">HOW AI WORKS</button>
+    <button class="nav-btn" onclick="showSection('roadmap', this)">ROADMAP</button>
+  </nav>
+</div>
+
+<div id="content">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- FEATURES                                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-features" class="section active">
+    <div class="page-title">Main Features</div>
+    <div class="page-sub">Click any feature to see inputs, outputs, and AI role</div>
+    <div class="filter-bar">
+      <button class="filter-btn active-all" onclick="filterFeatures('ALL', this)">ALL</button>
+      <button class="filter-btn" onclick="filterFeatures('CORE', this)">CORE</button>
+      <button class="filter-btn" onclick="filterFeatures('ENHANCED', this)">ENHANCED</button>
+      <button class="filter-btn" onclick="filterFeatures('FUTURE', this)">FUTURE</button>
+      <button class="filter-btn" onclick="filterFeatures('GOALKEEPER', this)">GOALKEEPER</button>
+    </div>
+    <div id="features-grid" class="grid-2"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- METRICS                                    -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-metrics" class="section">
+    <div class="page-title">Full Metrics Library</div>
+    <div class="page-sub">All capturable metrics — outfield, goalkeeper, and beyond</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#00ff87"></div>Video Only</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div>Wearable Needed</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#60efff"></div>Free from tracking</div>
+    </div>
+    <div id="metrics-content"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PREREQUISITES                              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-prereqs" class="section">
+    <div class="page-title">Prerequisites</div>
+    <div class="page-sub">What you need before building begins</div>
+    <div id="prereqs-content"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- HOW AI WORKS                               -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-ai" class="section">
+    <div class="page-title">How The AI Works</div>
+    <div class="page-sub">Step-by-step: from raw video to player stats</div>
+    <div id="steps-flow" class="steps-flow"></div>
+    <div id="step-detail-area"></div>
+    <div class="label">ALL STEPS AT A GLANCE</div>
+    <div id="steps-table" class="steps-table"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ROADMAP                                    -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="sec-roadmap" class="section">
+    <div class="page-title">Build Roadmap</div>
+    <div class="page-sub">4 phases from prototype to intelligent product</div>
+    <div id="roadmap-grid" class="grid-2" style="gap:16px"></div>
+    <div id="timeline-bar" class="timeline-bar"></div>
+  </div>
+
+</div>
+
+<div id="footer">SCOUTAI — FOOTBALL ACADEMY AI PERFORMANCE ANALYSIS SYSTEM</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const features = [
+  { id:"F1", priority:"CORE", name:"Video Upload & Session Management", users:["Coach","Admin"], description:"Upload training session videos, tag players, date, and session type. The system stores and organizes videos by player and date automatically.", inputs:["MP4/MOV video file","Player roster","Session date & type"], outputs:["Stored session record","Processing status","Session timeline"], aiRole:false },
+  { id:"F2", priority:"CORE", name:"AI Player Detection & Tracking", users:["System"], description:"AI automatically detects every player and the ball in each frame, assigns a persistent ID, and tracks movement throughout the video.", inputs:["Raw video frames"], outputs:["Player bounding boxes","Ball coordinates","Player trajectories"], aiRole:true, aiModel:"YOLOv8 + ByteTrack" },
+  { id:"F3", priority:"CORE", name:"Passing Analysis", users:["System","Coach"], description:"Counts passes per player, measures accuracy (completed vs failed), and logs pass direction and distance.", inputs:["Player + ball trajectories"], outputs:["Pass count","Pass accuracy %","Pass map (heatmap)"], aiRole:true, aiModel:"Event Classification Model" },
+  { id:"F4", priority:"CORE", name:"Shooting Analysis", users:["System","Coach"], description:"Detects shooting events — high-velocity ball toward goal. Logs shots on target vs off target, and shot position.", inputs:["Ball velocity vector","Goal coordinates"], outputs:["Shot count","On-target rate","Shot map"], aiRole:true, aiModel:"Ball Velocity + Zone Classifier" },
+  { id:"F5", priority:"CORE", name:"Sprint Detection", users:["System","Coach"], description:"Tracks player speed frame-by-frame. Logs sprint events when speed exceeds threshold, with duration and total distance covered.", inputs:["Player position over time","Camera calibration (px→meters)"], outputs:["Sprint count","Max speed (m/s)","Total distance (m)"], aiRole:true, aiModel:"Speed Threshold + Tracking" },
+  { id:"F6", priority:"CORE", name:"Dribbling Detection", users:["System","Coach"], description:"Detects when a player carries the ball past an opponent. Logs successful vs failed dribble attempts per player.", inputs:["Ball-player proximity","Opponent positions"], outputs:["Dribble attempts","Success rate","Dribble zones"], aiRole:true, aiModel:"Proximity + Motion Classifier" },
+  { id:"F7", priority:"CORE", name:"Ball Control Detection", users:["System","Coach"], description:"Measures first-touch quality — whether the ball stays within control range after being received.", inputs:["Ball trajectory on receive","Player foot position"], outputs:["Control success rate","Control events count"], aiRole:true, aiModel:"Ball Proximity + Pose Model" },
+  { id:"F8", priority:"CORE", name:"Player Performance Dashboard", users:["Coach","Player"], description:"Per-player view showing all 5 metrics across sessions. Trend charts, session comparison, and performance score over time.", inputs:["All processed session data"], outputs:["Charts","Trend lines","Performance score"], aiRole:false },
+  { id:"F9", priority:"ENHANCED", name:"Auto-Clip Generator", users:["Coach","Player"], description:"Automatically cuts and labels video clips for each detected event. Coach can review 'all shots by Player 7' as a highlight reel.", inputs:["Event timestamps","Original video"], outputs:["Tagged video clips","Highlight reels"], aiRole:false },
+  { id:"F10", priority:"ENHANCED", name:"Session PDF Report", users:["Coach","Parent"], description:"Auto-generated PDF report per player per session, showing all metrics with charts and coaching notes.", inputs:["Session metrics","Coach notes"], outputs:["Downloadable PDF report"], aiRole:false },
+  { id:"GK1", priority:"CORE", name:"Save Detection", users:["System","Coach"], description:"Detects when the goalkeeper stops a shot on target. Logs save count, save zone (top-left, low-right etc.), and diving vs standing saves.", inputs:["Shot event","GK position","Ball trajectory"], outputs:["Save count","Save zone map","Save success rate"], aiRole:true, aiModel:"Ball Trajectory + GK Proximity", position:"GOALKEEPER" },
+  { id:"GK2", priority:"CORE", name:"Distribution Analysis", users:["System","Coach"], description:"Tracks goalkeeper throws, kicks, and goal kicks. Measures distance, accuracy, and target zone. Key metric for modern goalkeepers.", inputs:["Ball release from GK","Target player position"], outputs:["Distribution count","Avg distance (m)","Accuracy %"], aiRole:true, aiModel:"Ball Velocity + Zone Classifier", position:"GOALKEEPER" },
+  { id:"GK3", priority:"ENHANCED", name:"Positioning & Angle Coverage", users:["System","Coach"], description:"Measures how well the GK positions relative to the ball and goal. Flags poor positioning before shots — key for coaching.", inputs:["GK position","Ball position","Goal coordinates"], outputs:["Coverage angle %","Positioning score","Risk zones flagged"], aiRole:true, aiModel:"Geometric Zone Model", position:"GOALKEEPER" },
+  { id:"GK4", priority:"ENHANCED", name:"Claim & Punch Detection", users:["System","Coach"], description:"Detects aerial claims (GK catches cross) and punches. Logs success rate and area of pitch where aerial actions occur.", inputs:["GK aerial movement","Ball height estimation","Cross events"], outputs:["Claims won","Punches count","Aerial success rate"], aiRole:true, aiModel:"Pose + Ball Proximity", position:"GOALKEEPER" },
+  { id:"GK5", priority:"FUTURE", name:"Reflex & Reaction Time", users:["Coach"], description:"Measures time between shot detection and GK first movement. Advanced metric for evaluating reflex quality.", inputs:["Shot timestamp","GK body keypoints over time"], outputs:["Reaction time (ms)","Reflex score"], aiRole:true, aiModel:"Pose Estimation + Frame Timing", position:"GOALKEEPER" },
+  { id:"A1", priority:"ENHANCED", name:"Tackles & Interceptions", users:["System","Coach"], description:"Detects defensive actions: tackles (player wins ball in ground duel) and interceptions (cuts off a pass). Key for evaluating defensive development.", inputs:["Player proximity","Ball possession change","Opponent positions"], outputs:["Tackle count","Interception count","Defensive actions map"], aiRole:true, aiModel:"Proximity + Possession Change Classifier" },
+  { id:"A2", priority:"ENHANCED", name:"Distance Covered & Heatmap", users:["System","Coach"], description:"Total distance covered per session derived from tracking data. Includes high-speed running zones and positional heatmap.", inputs:["Player position trajectory (already tracked)"], outputs:["Total distance (m)","High-speed distance","Pitch heatmap"], aiRole:false, note:"FREE — derived from existing tracking data" },
+  { id:"A3", priority:"ENHANCED", name:"Aerial Duels", users:["System","Coach"], description:"Detects header contests — when two players jump for the ball. Logs won/lost per player. Important physical development marker for youth players.", inputs:["Player height spike (jump detection)","Ball height","Proximity of two players"], outputs:["Aerial duels count","Win rate","Zone of aerial contests"], aiRole:true, aiModel:"Pose (jump detection) + Ball Height" },
+  { id:"A4", priority:"ENHANCED", name:"Key Passes & Progressive Passes", users:["System","Coach"], description:"Key passes: passes directly creating a shot opportunity. Progressive passes: forward passes advancing ball 10m+ into attacking zones.", inputs:["Pass events","Ball destination zone","Shot events following pass"], outputs:["Key pass count","Progressive pass count","Pass value map"], aiRole:true, aiModel:"Pass Event + Zone Classifier" },
+  { id:"A5", priority:"ENHANCED", name:"Pressing Actions (PPDA)", users:["System","Coach"], description:"Counts how often a player actively presses the opponent in possession. PPDA measures team pressing efficiency — a core modern tactical metric.", inputs:["Player movement toward opponent with ball","Ball possession data"], outputs:["Press count","PPDA score","Press success rate"], aiRole:true, aiModel:"Movement Intent Classifier" },
+  { id:"A6", priority:"FUTURE", name:"Expected Goals (xG) per Shot", users:["System","Coach"], description:"Calculates shot quality score (0–1) based on distance, angle, and defensive pressure. Distinguishes quality finishers from lucky ones.", inputs:["Shot position","Goal angle","Defender proximity","Shot type"], outputs:["xG value per shot","Total xG session","Shot quality map"], aiRole:true, aiModel:"ML Regression Model (trained on shot outcomes)" },
+  { id:"A7", priority:"FUTURE", name:"Possession Loss Location", users:["System","Coach"], description:"Logs exactly where and how each player loses the ball — bad touch, tackled, bad pass. Critical for decision-making analysis under pressure.", inputs:["Ball possession change events","Player position","Context (press/no press)"], outputs:["Turnover map","Turnover count","High-risk zone flags"], aiRole:true, aiModel:"Possession Change + Zone Classifier" },
+  { id:"F11", priority:"FUTURE", name:"Pose & Technique Analysis", users:["Coach"], description:"Body keypoint detection to analyze shooting form, sprint mechanics, and body posture. Gives technique-level feedback beyond counting events.", inputs:["Player video frames"], outputs:["Keypoint data","Technique score","Form feedback"], aiRole:true, aiModel:"MediaPipe Pose" },
+  { id:"F12", priority:"FUTURE", name:"AI Coaching Suggestions", users:["Coach"], description:"LLM-generated coaching insights based on player trends. e.g. 'Player 3 passing accuracy dropped 15% — suggest short-pass drills.'", inputs:["Historical metric trends"], outputs:["Text coaching suggestions"], aiRole:true, aiModel:"LLM (Claude / GPT)" },
+];
+
+const metricGroups = [
+  { label:"CORE OUTFIELD (Original 5)", color:"#00ff87", icon:"⚽", items:[
+    { name:"Passing",      capture:"✅ Video", difficulty:"Easy",   detail:"Count, accuracy %, direction, distance. Ball A→B between players." },
+    { name:"Shooting",     capture:"✅ Video", difficulty:"Easy",   detail:"Count, on-target rate, shot map. High-velocity ball toward goal." },
+    { name:"Sprint",       capture:"✅ Video", difficulty:"Easy",   detail:"Count, max speed (m/s), distance. Derived from tracking." },
+    { name:"Dribbling",    capture:"✅ Video", difficulty:"Medium", detail:"Attempts, success rate, zone. Ball + player past opponent." },
+    { name:"Ball Control", capture:"✅ Video", difficulty:"Medium", detail:"First-touch success rate. Ball stays within 1m after receive." },
+  ]},
+  { label:"ADVANCED OUTFIELD", color:"#60efff", icon:"📊", items:[
+    { name:"Tackles",               capture:"✅ Video", difficulty:"Medium", detail:"Player wins ball in ground duel. Defensive development marker." },
+    { name:"Interceptions",         capture:"✅ Video", difficulty:"Medium", detail:"Cuts off a pass before it reaches opponent. Anticipation metric." },
+    { name:"Distance Covered",      capture:"✅ Video", difficulty:"Free",   detail:"Total meters per session. Derived from existing tracking — no extra work." },
+    { name:"Heatmap",               capture:"✅ Video", difficulty:"Free",   detail:"Pitch zones where player spends most time. Derived from tracking." },
+    { name:"Aerial Duels",          capture:"✅ Video", difficulty:"Medium", detail:"Header contests won/lost. Needs jump detection via pose model." },
+    { name:"Key Passes",            capture:"✅ Video", difficulty:"Medium", detail:"Pass directly creating a shot opportunity. Creative player metric." },
+    { name:"Progressive Passes",    capture:"✅ Video", difficulty:"Medium", detail:"Forward passes advancing ball 10m+ into attack zones." },
+    { name:"Pressing (PPDA)",       capture:"✅ Video", difficulty:"Hard",   detail:"Pressing efficiency: passes allowed per defensive action." },
+    { name:"xG per Shot",           capture:"✅ Video", difficulty:"Hard",   detail:"Shot quality score based on position, angle, pressure. Needs ML model." },
+    { name:"Possession Loss",       capture:"✅ Video", difficulty:"Hard",   detail:"Where/how player loses the ball. Decision-making under pressure." },
+  ]},
+  { label:"GOALKEEPER METRICS", color:"#ff9f43", icon:"🧤", items:[
+    { name:"Saves",                      capture:"✅ Video", difficulty:"Easy",   detail:"Count, save zone map (top/low/left/right), diving vs. standing." },
+    { name:"Distribution",              capture:"✅ Video", difficulty:"Easy",   detail:"Throws, kicks, goal kicks — distance, accuracy, target zone." },
+    { name:"Positioning / Angle",        capture:"✅ Video", difficulty:"Medium", detail:"GK angle relative to ball + goal. Flags poor positioning before shots." },
+    { name:"Aerial Claims & Punches",    capture:"✅ Video", difficulty:"Medium", detail:"Crosses claimed or punched. Aerial dominance metric." },
+    { name:"Reflex / Reaction Time",     capture:"✅ Video", difficulty:"Hard",   detail:"Time from shot to GK first movement. Needs pose + frame timing." },
+    { name:"xGP (Goals Prevented)",      capture:"✅ Video", difficulty:"Hard",   detail:"Saves vs. expected — did GK outperform or underperform shot quality?" },
+  ]},
+  { label:"REQUIRES WEARABLES (Not Video-Capturable)", color:"#ff6b6b", icon:"❌", items:[
+    { name:"Heart Rate",        capture:"❌ Wearable", difficulty:"N/A", detail:"Internal load monitoring. Requires HR strap or GPS vest." },
+    { name:"Metabolic Power",   capture:"❌ Wearable", difficulty:"N/A", detail:"Energy expenditure. Requires GPS + accelerometer sensors." },
+    { name:"Muscle Fatigue",    capture:"❌ Wearable", difficulty:"N/A", detail:"Biometric indicator. Requires specialized wearables (e.g. Catapult)." },
+  ]},
+];
+
+const prerequisites = [
+  { category:"HARDWARE", color:"#ff6b6b", items:[
+    { name:"Camera(s)", detail:"Minimum 1080p, 30FPS. Wide-angle lens for full pitch coverage. Fixed tripod mount for stability. Second camera optional for tactical angle." },
+    { name:"Recording Device", detail:"Camera with local SD card or direct NAS streaming. Consistent frame rate critical for accurate speed calculation." },
+    { name:"Processing Server", detail:"GPU-enabled machine for AI inference. Minimum: NVIDIA RTX 3080 or equivalent. Cloud GPU (AWS/GCP) is alternative." },
+    { name:"Storage", detail:"1 hour of 1080p ≈ 4–8GB. Plan for 2TB+ NAS or cloud bucket for 1 season of sessions." },
+  ]},
+  { category:"DATA", color:"#ffd93d", items:[
+    { name:"Player Roster", detail:"Database of all students: name, ID, jersey number/color, team. Required for linking detections to real players." },
+    { name:"Pitch Calibration", detail:"One-time setup: map camera pixels to real-world pitch coordinates using calibration markers. Enables accurate distance/speed." },
+    { name:"Training Labels (optional)", detail:"If customizing the AI model: ~500–1000 labeled video clips of passes, shots, etc. Can start with pre-trained models first." },
+    { name:"Baseline Sessions", detail:"First 2–4 sessions are calibration data. AI improves as it learns your specific pitch, lighting, and jersey colors." },
+  ]},
+  { category:"SOFTWARE & SKILLS", color:"#00ff87", items:[
+    { name:"Python (Data Scientist)", detail:"Core language for AI pipeline. Libraries: OpenCV, Ultralytics (YOLOv8), supervision, NumPy, pandas." },
+    { name:"ML Framework", detail:"PyTorch for model fine-tuning. Pre-trained YOLOv8 weights available out-of-the-box — minimal training needed to start." },
+    { name:"Backend Developer", detail:"FastAPI or Django for the API layer. Manages video uploads, triggers AI pipeline, serves results to dashboard." },
+    { name:"Frontend Developer", detail:"React + charting library (Recharts/Chart.js) for the dashboard. Video player with clip review capability." },
+    { name:"Database", detail:"PostgreSQL for structured data. Basic SQL knowledge needed. TimescaleDB extension for time-series tracking data." },
+  ]},
+  { category:"ENVIRONMENT", color:"#c77dff", items:[
+    { name:"Consistent Lighting", detail:"Outdoor: minimize sessions in harsh midday shadow or rain. Indoor: uniform artificial lighting. Lighting consistency = better detection accuracy." },
+    { name:"Jersey Differentiation", detail:"Players wear numbered/colored jerseys. Consistent colors per session help the tracking model maintain player IDs." },
+    { name:"Camera Position Rules", detail:"Camera must not be moved mid-session. Calibration is per camera angle — moving it breaks metric calculations." },
+  ]},
+];
+
+const aiSteps = [
+  { step:"01", name:"Frame Extraction",    color:"#60efff", icon:"🎬", what:"The video is split into individual image frames at 25–30 frames per second.", why:"AI models work on still images. Each frame becomes an input for detection.", tool:"FFmpeg + OpenCV", analogy:"Like flipping through a flipbook — each page is analyzed separately." },
+  { step:"02", name:"Object Detection",    color:"#00ff87", icon:"🔍", what:"YOLOv8 scans each frame and draws bounding boxes around every player and the ball.", why:"Before tracking or measuring anything, the AI must know where each object is.", tool:"YOLOv8 (pre-trained on COCO + sports fine-tune)", analogy:"Like a very fast spotter who circles every player and the ball in each photograph." },
+  { step:"03", name:"Player Tracking",     color:"#ffd93d", icon:"🏃", what:"ByteTrack links the same player across consecutive frames, assigning a consistent ID (e.g. 'Player_07') throughout the video.", why:"Detection alone forgets who is who between frames. Tracking maintains identity.", tool:"ByteTrack / DeepSORT", analogy:"Like tagging each player with an invisible GPS tracker so we always know it's the same person." },
+  { step:"04", name:"Coordinate Mapping",  color:"#ff9f43", icon:"📐", what:"Pixel coordinates from the camera are converted to real-world pitch coordinates (meters) using a calibration homography matrix.", why:"Without this, we can't measure real speed or distance — only pixel positions.", tool:"OpenCV homography", analogy:"Like converting a map's grid coordinates to real GPS locations." },
+  { step:"05", name:"Event Classification",color:"#ff6b6b", icon:"⚡", what:"A classifier watches the relationships between player positions, ball trajectory, and speed to detect specific events: pass, shot, sprint, dribble, control.", why:"This is the core intelligence — translating raw positions into meaningful football actions.", tool:"Custom rule engine + lightweight ML classifier", analogy:"Like a football analyst who watches the same video and marks a tally every time something specific happens.", rules:["PASS: Ball travels from Player A → Player B with separation > X meters","SHOT: Ball velocity > threshold, directed at goal zone","SPRINT: Player speed > 7 m/s for > 1 second","DRIBBLE: Player + ball move together past opponent bounding box","CONTROL: Ball stays within 1m of player for 3+ frames after receive"] },
+  { step:"06", name:"Data Aggregation",    color:"#c77dff", icon:"📊", what:"All detected events are timestamped, linked to a player ID, and written to the database. Stats are calculated: totals, rates, averages.", why:"Raw events need to be summarized into meaningful metrics coaches can act on.", tool:"Python + PostgreSQL", analogy:"Like a statistician tallying up every event from a match and producing the final stats sheet." },
+  { step:"07", name:"Dashboard Rendering", color:"#00d2ff", icon:"📱", what:"The web dashboard reads player stats from the database and renders charts, heatmaps, and video clips per player per session.", why:"Data only has value when coaches and players can see and understand it.", tool:"React + Recharts + Video Player", analogy:"Like publishing the stats sheet as an interactive report anyone can read on their phone." },
+];
+
+const roadmap = [
+  { phase:"PHASE 1", duration:"4–6 weeks", title:"Foundation",        color:"#00ff87", deliverables:["Camera setup & pitch calibration","YOLOv8 detection working on sample footage","Player tracking with ByteTrack","Sprint + passing detection (rules-based)","Basic database schema"], milestone:"AI correctly detects & tracks players in a test session" },
+  { phase:"PHASE 2", duration:"4–6 weeks", title:"Core Metrics",      color:"#60efff", deliverables:["Shooting, dribbling, ball control detectors","Event logging to database","Simple coach dashboard (web)","Per-player session summary view","Manual correction tool for coach"], milestone:"All 5 metrics live for a real training session" },
+  { phase:"PHASE 3", duration:"3–4 weeks", title:"Polish & Reports",  color:"#ffd93d", deliverables:["Auto-clip generator for events","PDF report generation","Player progress trend charts","Multi-session comparison view","User accounts (coach / player login)"], milestone:"Coaches can share PDF reports with players & parents" },
+  { phase:"PHASE 4", duration:"Ongoing",   title:"Intelligence Layer",color:"#c77dff", deliverables:["Pose estimation for technique analysis","AI coaching suggestions (LLM-powered)","Model fine-tuning on academy's own footage","Mobile app for players","Team-level analytics"], milestone:"Product becomes a competitive advantage for the academy" },
+];
+
+const priorityColor = { CORE:"#00ff87", ENHANCED:"#ffd93d", FUTURE:"#c77dff" };
+const diffColor = { Easy:"#00ff87", Medium:"#ffd93d", Hard:"#ff9f43", Free:"#60efff", "N/A":"#ff6b6b" };
+
+// ─────────────────────────────────────────────
+// RENDER STATE
+// ─────────────────────────────────────────────
+let currentFilter = 'ALL';
+let openFeature   = null;
+let activeStep    = null;
+
+// ─────────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// FEATURES
+// ─────────────────────────────────────────────
+function filterFeatures(filter, btn) {
+  currentFilter = filter;
+  openFeature = null;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.className = 'filter-btn';
+  });
+  const classMap = { ALL:'active-all', CORE:'active-core', ENHANCED:'active-enh', FUTURE:'active-fut', GOALKEEPER:'active-gk' };
+  btn.classList.add(classMap[filter]);
+  renderFeatures();
+}
+
+function renderFeatures() {
+  const filtered = features.filter(f =>
+    currentFilter === 'ALL' ||
+    f.priority === currentFilter ||
+    (currentFilter === 'GOALKEEPER' && f.position === 'GOALKEEPER')
+  );
+  const grid = document.getElementById('features-grid');
+  grid.innerHTML = filtered.map(f => {
+    const pc = priorityColor[f.priority] || '#888';
+    const isOpen = openFeature === f.id;
+    return `
+    <div class="card${isOpen ? ' open' : ''}" onclick="toggleFeature('${f.id}')"
+         style="border-left: 3px solid ${pc}; ${isOpen ? 'border-color:' + pc : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="card-id">${f.id}</div>
+        <div class="card-badges">
+          ${f.position === 'GOALKEEPER' ? '<span class="badge badge-gk">GK</span>' : ''}
+          ${f.aiRole ? '<span class="badge badge-ai">AI</span>' : ''}
+          <span class="badge badge-${f.priority.toLowerCase().slice(0,3)}">${f.priority}</span>
+        </div>
+      </div>
+      <div class="card-name">${f.name}</div>
+      <div class="card-desc">${f.description}</div>
+      <div class="card-detail${isOpen ? ' open' : ''}">
+        <div class="io-grid">
+          <div>
+            <div class="io-label">INPUTS</div>
+            ${f.inputs.map(i => `<div class="io-item-in">→ ${i}</div>`).join('')}
+          </div>
+          <div>
+            <div class="io-label">OUTPUTS</div>
+            ${f.outputs.map(o => `<div class="io-item-out">← ${o}</div>`).join('')}
+          </div>
+        </div>
+        ${f.aiRole ? `<div class="model-pill"><span>AI MODEL</span>${f.aiModel}</div>` : ''}
+        <div class="users-line">USERS: ${f.users.join('  ·  ')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFeature(id) {
+  openFeature = openFeature === id ? null : id;
+  renderFeatures();
+}
+
+// ─────────────────────────────────────────────
+// METRICS
+// ─────────────────────────────────────────────
+function renderMetrics() {
+  document.getElementById('metrics-content').innerHTML = metricGroups.map(group => `
+    <div class="metric-group">
+      <div class="group-header">
+        <div class="group-line" style="width:20px;background:${group.color}"></div>
+        <div class="group-title" style="color:${group.color}">${group.icon} ${group.label}</div>
+        <div class="group-line-right" style="background:${group.color}33"></div>
+      </div>
+      <div class="grid-3">
+        ${group.items.map(item => {
+          const dc = diffColor[item.difficulty] || '#888';
+          return `
+          <div class="metric-card" style="border-left-color:${group.color}">
+            <div class="metric-top">
+              <div class="metric-name">${item.name}</div>
+              <div class="diff-badge" style="color:${dc};border-color:${dc}44">${item.difficulty}</div>
+            </div>
+            <div class="metric-capture">${item.capture}</div>
+            <div class="metric-detail">${item.detail}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// PREREQUISITES
+// ─────────────────────────────────────────────
+function renderPrereqs() {
+  document.getElementById('prereqs-content').innerHTML = prerequisites.map(cat => `
+    <div class="prereq-group">
+      <div class="prereq-header" style="color:${cat.color}">
+        <div class="prereq-line" style="background:${cat.color}"></div>
+        ${cat.category}
+      </div>
+      <div class="grid-2">
+        ${cat.items.map(item => `
+        <div class="prereq-card" style="border-left-color:${cat.color}">
+          <div class="prereq-name">${item.name}</div>
+          <div class="prereq-detail">${item.detail}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// AI STEPS
+// ─────────────────────────────────────────────
+function renderAI() {
+  // flow bar
+  document.getElementById('steps-flow').innerHTML = aiSteps.map((s, i) => `
+    <div style="display:flex;align-items:center">
+      <div class="step-btn${activeStep === s.step ? ' active' : ''} ${activeStep && activeStep !== s.step ? 'dimmed' : ''}"
+           onclick="selectStep('${s.step}')"
+           style="${activeStep === s.step ? 'background:' + s.color + ';border-color:' + s.color : ''}">
+        <div class="step-num" style="color:${activeStep === s.step ? '#07090d' : '#444'}">${s.step}</div>
+        <div class="step-name" style="color:${activeStep === s.step ? '#07090d' : s.color}">${s.icon} ${s.name}</div>
+      </div>
+      ${i < aiSteps.length - 1 ? '<div class="step-arrow">▶</div>' : ''}
+    </div>
+  `).join('');
+
+  // detail
+  const detailEl = document.getElementById('step-detail-area');
+  if (activeStep) {
+    const s = aiSteps.find(x => x.step === activeStep);
+    detailEl.innerHTML = `
+      <div class="step-detail" style="border-left-color:${s.color};border:1px solid ${s.color}33;border-left-width:4px">
+        <div class="step-detail-title" style="color:${s.color}">${s.icon} ${s.name}</div>
+        <div class="step-analogy">"${s.analogy}"</div>
+        <div class="step-grid">
+          <div>
+            <div class="step-section-label">WHAT HAPPENS</div>
+            <div class="step-text">${s.what}</div>
+          </div>
+          <div>
+            <div class="step-section-label">WHY IT MATTERS</div>
+            <div class="step-text">${s.why}</div>
+          </div>
+        </div>
+        <div class="tool-pill">
+          <span>TOOL / MODEL</span>
+          <em style="color:${s.color}">${s.tool}</em>
+        </div>
+        ${s.rules ? `
+        <div class="rules-section">
+          <div class="step-section-label" style="margin-top:16px;margin-bottom:10px">DETECTION RULES</div>
+          ${s.rules.map(r => `<div class="rule-item"><span style="color:${s.color}">▸ </span>${r}</div>`).join('')}
+        </div>` : ''}
+      </div>`;
+  } else {
+    detailEl.innerHTML = `
+      <div class="step-placeholder">
+        <div class="emoji">🤖</div>
+        <div style="font-size:11px;letter-spacing:2px">SELECT A STEP ABOVE TO SEE HOW IT WORKS</div>
+      </div>`;
+  }
+
+  // summary table
+  document.getElementById('steps-table').innerHTML = aiSteps.map((s, i) => `
+    <div class="steps-table-row" style="${i < aiSteps.length - 1 ? '' : 'border-bottom:none'}">
+      <div class="steps-table-cell" style="color:${s.color}">${s.step}</div>
+      <div class="steps-table-cell" style="color:#bbb">${s.icon} ${s.name}</div>
+      <div class="steps-table-cell" style="color:#555">${s.what.substring(0, 80)}…</div>
+      <div class="steps-table-cell" style="color:#444">${s.tool}</div>
+    </div>
+  `).join('');
+}
+
+function selectStep(step) {
+  activeStep = activeStep === step ? null : step;
+  renderAI();
+}
+
+// ─────────────────────────────────────────────
+// ROADMAP
+// ─────────────────────────────────────────────
+function renderRoadmap() {
+  document.getElementById('roadmap-grid').innerHTML = roadmap.map(p => `
+    <div class="phase-card" style="border-top-color:${p.color}">
+      <div class="phase-top">
+        <div>
+          <div class="phase-label" style="color:${p.color}">${p.phase}</div>
+          <div class="phase-title">${p.title}</div>
+        </div>
+        <div class="phase-dur">${p.duration}</div>
+      </div>
+      <div>
+        ${p.deliverables.map(d => `
+        <div class="deliverable">
+          <span style="color:${p.color}">✓</span> ${d}
+        </div>`).join('')}
+      </div>
+      <div class="milestone-box" style="background:${p.color}0d;border-color:${p.color}33">
+        <div class="milestone-label">MILESTONE</div>
+        <div class="milestone-text" style="color:${p.color}">${p.milestone}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('timeline-bar').innerHTML = `
+    <div class="label">TOTAL TIMELINE ESTIMATE</div>
+    <div class="timeline-track">
+      ${roadmap.map((p, i) => `
+      <div class="timeline-seg">
+        <div class="timeline-seg-bar" style="background:${p.color};
+          margin-right:${i < 3 ? '2px' : '0'};
+          border-radius:${i === 0 ? '4px 0 0 4px' : i === 3 ? '0 4px 4px 0' : '0'}"></div>
+        <div class="timeline-seg-phase" style="color:${p.color}">${p.phase}</div>
+        <div class="timeline-seg-dur">${p.duration}</div>
+      </div>`).join('')}
+    </div>
+    <div class="timeline-note">Phases 1–3: ~3–4 months to a fully working product. Phase 4 is ongoing improvement.</div>
+  `;
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderFeatures();
+renderMetrics();
+renderPrereqs();
+renderAI();
+renderRoadmap();
+</script>
+</body>
+</html>
