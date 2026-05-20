@@ -129,7 +129,7 @@ def _make_events(player: Player, session_id: int, stats: PlayerStats) -> list[Ev
     events: list[Event] = []
     t_offset = 0.0
 
-    for _ in range(stats.passes_completed):
+    for _ in range(stats.passes_completed or 0):
         t_offset += random.uniform(20, 120)
         events.append(Event(
             session_id=session_id, player_id=player.id,
@@ -137,7 +137,8 @@ def _make_events(player: Player, session_id: int, stats: PlayerStats) -> list[Ev
             result="success", confidence=round(random.uniform(0.75, 0.99), 2),
         ))
 
-    for _ in range(stats.shots_attempted - stats.shots_on_target):
+    missed = (stats.shots_attempted or 0) - (stats.shots_on_target or 0)
+    for _ in range(max(missed, 0)):
         t_offset += random.uniform(60, 300)
         events.append(Event(
             session_id=session_id, player_id=player.id,
@@ -145,7 +146,7 @@ def _make_events(player: Player, session_id: int, stats: PlayerStats) -> list[Ev
             result="miss", confidence=round(random.uniform(0.70, 0.95), 2),
         ))
 
-    for _ in range(stats.shots_on_target):
+    for _ in range(stats.shots_on_target or 0):
         t_offset += random.uniform(60, 300)
         events.append(Event(
             session_id=session_id, player_id=player.id,
@@ -153,7 +154,7 @@ def _make_events(player: Player, session_id: int, stats: PlayerStats) -> list[Ev
             result="on_target", confidence=round(random.uniform(0.80, 0.99), 2),
         ))
 
-    for _ in range(stats.sprint_count):
+    for _ in range(stats.sprint_count or 0):
         t_offset += random.uniform(30, 90)
         events.append(Event(
             session_id=session_id, player_id=player.id,
@@ -161,7 +162,7 @@ def _make_events(player: Player, session_id: int, stats: PlayerStats) -> list[Ev
             result="success", confidence=round(random.uniform(0.85, 0.99), 2),
         ))
 
-    for _ in range(stats.saves):
+    for _ in range(stats.saves or 0):
         t_offset += random.uniform(120, 400)
         events.append(Event(
             session_id=session_id, player_id=player.id,

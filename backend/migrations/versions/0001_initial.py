@@ -116,7 +116,7 @@ def upgrade() -> None:
         sa.Column("timestamp_seconds", sa.Float, nullable=False),
         sa.Column("result", sa.String(50), nullable=False),
         sa.Column("confidence", sa.Float, server_default="1.0"),
-        sa.Column("metadata", sa.JSON, nullable=True),
+        sa.Column("extra_data", sa.JSON, nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_events_session_id", "events", ["session_id"])
