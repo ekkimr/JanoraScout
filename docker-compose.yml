@@ -44,6 +44,15 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build: backend/
+    env_file: .env
+    command: >
+      sh -c "alembic -c migrations/alembic.ini upgrade head && python seed.py"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   backend:
     build: backend/
     env_file: .env
@@ -56,6 +65,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
