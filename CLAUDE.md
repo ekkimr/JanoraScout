@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## ScoutAI
+## JanoraScout
 
 AI-powered video analysis platform for football academies. Coaches upload training footage; the AI pipeline detects players, tracks movement, and captures performance metrics per player per session.
 
@@ -89,5 +89,5 @@ Fonts — Display: `Barlow Condensed 700/800` | Body: `Barlow 300-500` | Mono: `
 
 ## Reference files
 
-- `docs/scoutai_dashboard.html` — pixel-perfect design reference for all dashboard components
+- `docs/janorascout_dashboard.html` — pixel-perfect design reference for all dashboard components
 - `docs/claude_playbook.md` — full project spec: DB schema, API endpoints, AI pipeline, build phases

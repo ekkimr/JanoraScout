@@ -1,12 +1,12 @@
 ---
 name: react-conventions
 description: >
-  Activates when editing .ts or .tsx files in the ScoutAI frontend. Enforces React 18 +
+  Activates when editing .ts or .tsx files in the JanoraScout frontend. Enforces React 18 +
   TypeScript strict mode, Zustand store patterns, Axios-via-api-layer rule, Tailwind
   design token usage, and Recharts component patterns.
 ---
 
-# React Conventions — ScoutAI Frontend
+# React Conventions — JanoraScout Frontend
 
 ## TypeScript
 - No `any` — every prop, state, and API response has an interface in `src/types/`

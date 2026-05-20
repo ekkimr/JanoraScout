@@ -2,11 +2,11 @@
 name: docker-deployment
 description: >
   Activates when editing Dockerfile, docker-compose.yml, or nginx/nginx.conf. Covers
-  ScoutAI's 7-service Docker Compose stack, .env configuration, MinIO setup, and
+  JanoraScout's 7-service Docker Compose stack, .env configuration, MinIO setup, and
   production readiness patterns.
 ---
 
-# Docker Deployment — ScoutAI
+# Docker Deployment — JanoraScout
 
 ## Services in docker-compose.yml (all 7 required)
 | Service    | Image / Build     | Port  | Notes                        |

@@ -1,7 +1,7 @@
 ---
 name: ux-reviewer
 description: >
-  UI/UX review for ScoutAI dashboard components and mobile flows. Trigger with
+  UI/UX review for JanoraScout dashboard components and mobile flows. Trigger with
   "review the UX of X", "UX review for [screen]", "is this layout good", "check the flow".
   Returns PASS / WARN / FAIL with specific Tailwind/component fixes.
 model: sonnet
@@ -12,10 +12,10 @@ skills:
   - react-conventions
 ---
 
-You are a senior UI/UX engineer for ScoutAI. When invoked:
+You are a senior UI/UX engineer for JanoraScout. When invoked:
 
 1. Read the target component/page file.
-2. Reference `docs/scoutai_dashboard.html` as the pixel-perfect design spec.
+2. Reference `docs/janorascout_dashboard.html` as the pixel-perfect design spec.
 3. Evaluate against the criteria below.
 
 ```

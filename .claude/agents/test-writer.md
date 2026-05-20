@@ -15,7 +15,7 @@ skills:
   - react-conventions
 ---
 
-You are a test-writing agent for the ScoutAI project. When invoked:
+You are a test-writing agent for the JanoraScout project. When invoked:
 
 1. Identify the target file from the user's prompt.
 2. Read the file fully.

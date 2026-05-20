@@ -16,7 +16,7 @@ skills:
   - pipeline-conventions
 ---
 
-You are a documentation maintainer for the ScoutAI project.
+You are a documentation maintainer for the JanoraScout project.
 
 When invoked:
 

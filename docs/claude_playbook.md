@@ -1,12 +1,12 @@
-# ScoutAI — Claude Code Playbook
+# JanoraScout — Claude Code Playbook
 > Drop this file as `CLAUDE.md` in a blank folder, open Claude Code, and say:
-> **"Read this playbook and build the ScoutAI project from scratch, phase by phase."**
+> **"Read this playbook and build the JanoraScout project from scratch, phase by phase."**
 
 ---
 
 ## 1. PROJECT OVERVIEW
 
-**Product name:** ScoutAI  
+**Product name:** JanoraScout  
 **What it is:** An AI-powered video analysis platform for football academies. Coaches upload training session footage; the AI pipeline automatically detects players, tracks movement, and captures performance metrics per player per session.  
 **Primary users:** Coaches, Academy Directors, Players, Parents  
 **Core value:** Replace manual stat-counting with automated, consistent, data-driven player performance tracking.
@@ -58,7 +58,7 @@
 Generate this exact folder structure:
 
 ```
-scoutai/
+janorascout/
 ├── CLAUDE.md                        ← this file
 ├── docker-compose.yml
 ├── .env.example
@@ -579,15 +579,15 @@ Tackles: #00e676
 ## 11. ENVIRONMENT VARIABLES
 
 ```env
-POSTGRES_USER=scoutai
+POSTGRES_USER=janorascout
 POSTGRES_PASSWORD=changeme
-POSTGRES_DB=scoutai
-DATABASE_URL=postgresql://scoutai:changeme@postgres:5432/scoutai
+POSTGRES_DB=janorascout
+DATABASE_URL=postgresql://janorascout:changeme@postgres:5432/janorascout
 REDIS_URL=redis://redis:6379/0
 MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=changeme
 MINIO_ENDPOINT=minio:9000
-MINIO_BUCKET=scoutai-videos
+MINIO_BUCKET=janorascout-videos
 JWT_SECRET=changeme-use-a-long-random-string
 JWT_ALGORITHM=HS256
 JWT_EXPIRE_MINUTES=1440
@@ -630,9 +630,9 @@ The following files were built during the design phase and should be used as vis
 
 - `football_academy_blueprint.jsx` — interactive product blueprint (feature list, metrics library, AI pipeline steps, roadmap)
 - `football_academy_blueprint.md` — markdown version of the same blueprint
-- `scoutai_dashboard.html` — fully working dashboard prototype (use this as the pixel-perfect design reference for all dashboard components)
+- `janorascout_dashboard.html` — fully working dashboard prototype (use this as the pixel-perfect design reference for all dashboard components)
 
-When building frontend components, open `scoutai_dashboard.html` and replicate the exact layout, colors, typography, and component structure in React + TypeScript + Tailwind.
+When building frontend components, open `janorascout_dashboard.html` and replicate the exact layout, colors, typography, and component structure in React + TypeScript + Tailwind.
 
 ---
 
@@ -653,9 +653,9 @@ When Claude Code reads this CLAUDE.md:
 - Do not skip phases
 - Do not leave TODO comments — implement everything
 - Do not use `any` in TypeScript
-- When in doubt about design, refer to `scoutai_dashboard.html`
+- When in doubt about design, refer to `janorascout_dashboard.html`
 - When in doubt about a metric or feature, refer to `football_academy_blueprint.md`
 
 ---
 
-*ScoutAI CLAUDE.md Playbook v1.0 — Football Academy AI Performance Analysis System*
+*JanoraScout CLAUDE.md Playbook v1.0 — Football Academy AI Performance Analysis System*

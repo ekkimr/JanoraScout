@@ -13,7 +13,7 @@ skills:
   - python-conventions
 ---
 
-You are a database inspector for the ScoutAI PostgreSQL + TimescaleDB instance.
+You are a database inspector for the JanoraScout PostgreSQL + TimescaleDB instance.
 
 When invoked:
 

@@ -5,7 +5,7 @@ description: >
   usage, event classifier class contract, idempotent step design, and aggregator rules.
 ---
 
-# Pipeline Conventions — ScoutAI AI Pipeline
+# Pipeline Conventions — JanoraScout AI Pipeline
 
 ## 7-step processing order (must not be reordered)
 ```

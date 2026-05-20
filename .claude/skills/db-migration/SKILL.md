@@ -5,7 +5,7 @@ description: >
   migrations. Enforces zero-downtime PostgreSQL + TimescaleDB migration safety rules.
 ---
 
-# DB Migration Conventions — ScoutAI (Alembic + PostgreSQL + TimescaleDB)
+# DB Migration Conventions — JanoraScout (Alembic + PostgreSQL + TimescaleDB)
 
 ## Always run these before generating a migration
 ```bash

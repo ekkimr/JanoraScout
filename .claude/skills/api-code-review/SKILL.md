@@ -1,11 +1,11 @@
 ---
 name: api-code-review
 description: >
-  Checklist for reviewing FastAPI endpoints, Pydantic schemas, and API contracts in ScoutAI.
+  Checklist for reviewing FastAPI endpoints, Pydantic schemas, and API contracts in JanoraScout.
   Invoke manually with /api-code-review before any endpoint is merged.
 ---
 
-# API Code Review Checklist — ScoutAI
+# API Code Review Checklist — JanoraScout
 
 ## Auth & authorization
 - [ ] All non-public endpoints have `Depends(get_current_user)` or equivalent guard

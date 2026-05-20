@@ -1,12 +1,12 @@
 ---
 name: python-conventions
 description: >
-  Activates when editing .py files in the ScoutAI backend. Enforces FastAPI router/service
+  Activates when editing .py files in the JanoraScout backend. Enforces FastAPI router/service
   split, SQLAlchemy 2.0 model patterns, Alembic migration rules, Pydantic schemas, and
   pytest structure.
 ---
 
-# Python Conventions — ScoutAI Backend
+# Python Conventions — JanoraScout Backend
 
 ## Router / Service split (hard rule)
 - `router.py` — HTTP wiring only: path, method, dependencies, call service, return response
